@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BouBou Barista | Smart Menu</title>
+    <title>BouBou Barista 2.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #5d4037; --bg: #fdfaf7; --text: #2d2d2d; --border: #ece0d1; --closed-bg: #ececec; }
@@ -12,52 +12,42 @@
         .card { max-width: 420px; width: 100%; background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); border: 1px solid var(--border); }
         h1 { font-family: 'Playfair Display'; color: var(--accent); text-align: center; margin: 0; font-size: 2.2rem; }
         .subtitle { text-align: center; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; margin-bottom: 20px; }
+        .msg { text-align: center; font-size: 0.85rem; color: #888; margin-bottom: 25px; font-style: italic; }
         .group { margin-bottom: 18px; }
         label { display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 8px; color: var(--accent); text-transform: uppercase; }
-        select, input, textarea { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 12px; font-size: 1rem; box-sizing: border-box; outline: none; background: #fff; font-family: 'Inter', sans-serif; }
+        select, input, textarea { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 12px; font-size: 1rem; box-sizing: border-box; outline: none; background: #fff; }
+        option:disabled { color: #ccc; }
         .btn { width: 100%; padding: 18px; background: var(--accent); color: white; border: none; border-radius: 15px; font-weight: 600; font-size: 1.1rem; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        .btn:disabled { background: #999; }
+        .btn:disabled { background: #999; cursor: not-allowed; }
         #tracking { display: none; text-align: center; }
         .step { margin: 15px 0; opacity: 0.1; transition: 0.5s; font-weight: 600; }
-        .step.active { opacity: 1; color: var(--accent); }
+        .active { opacity: 1; color: var(--accent); }
     </style>
 </head>
-<body>
+<body id="main-body">
 
 <div class="card">
     <div id="order-form">
         <h1>BouBou Barista</h1>
-        <div id="status-label" class="subtitle">Loading...</div>
+        <div id="status-label" class="subtitle">Connecting...</div>
+        <div id="daily-msg" class="msg"></div>
 
         <div class="group"><label>Name</label><input type="text" id="name" placeholder="Enter name"></div>
-        
-        <div class="group">
-            <label>Drink</label>
-            <select id="drink-select" onchange="filterFlavors()"></select>
-        </div>
-
-        <div class="group">
-            <label>Flavor</label>
-            <select id="flavor-select"></select>
-        </div>
-
-        <div class="group">
-            <label>Size</label>
-            <select id="size-select"></select>
-        </div>
-
+        <div class="group"><label>Drink</label><select id="drink-select" onchange="filterFlavors()"></select></div>
+        <div class="group"><label>Flavor</label><select id="flavor-select"></select></div>
+        <div class="group"><label>Size</label><select id="size-select"></select></div>
         <div class="group"><label>Notes</label><textarea id="notes" rows="2"></textarea></div>
 
         <button id="main-btn" class="btn" onclick="sendOrder()">Place Order</button>
     </div>
 
     <div id="tracking">
-        <h2 style="font-family: 'Playfair Display'; color: var(--accent);">Brewing...</h2>
+        <h2 style="font-family: 'Playfair Display'; color: var(--accent);">Order Received!</h2>
         <div id="s1" class="step">Grinding beans...</div>
-        <div id="s2" class="step">Extraction in progress...</div>
-        <div id="s3" class="step">Steaming milk...</div>
-        <div id="s4" class="step">Coming to you!</div>
-        <button onclick="location.reload()" style="background:none; border:none; text-decoration:underline; cursor:pointer; margin-top:30px; color:var(--accent);">Back to Menu</button>
+        <div id="s2" class="step">Brewing magic...</div>
+        <div id="s3" class="step">Almost there...</div>
+        <div id="s4" class="step">Heading to you!</div>
+        <button onclick="location.reload()" style="background:none; border:none; text-decoration:underline; cursor:pointer; margin-top:30px; color:var(--accent);">New Order</button>
     </div>
 </div>
 
@@ -66,48 +56,48 @@
     let fullMenu = [];
 
     async function init() {
-        const res = await fetch(SCRIPT_URL);
-        const data = await res.json();
-        fullMenu = data.menu;
+        try {
+            const res = await fetch(SCRIPT_URL);
+            const data = await res.json();
+            fullMenu = data.menu;
 
-        // Set Shop Status
-        const isOpen = data.status.toLowerCase() === 'open';
-        document.getElementById('status-label').innerText = isOpen ? "Open for service" : "Kitchen Closed";
-        if(!isOpen) {
-            document.body.classList.add('shop-closed');
-            document.getElementById('main-btn').disabled = true;
-            document.getElementById('main-btn').innerText = "Closed";
-        }
+            document.getElementById('daily-msg').innerText = data.message;
+            const isOpen = data.status.toLowerCase() === 'open';
+            document.getElementById('status-label').innerText = isOpen ? "Open for service" : "Kitchen Closed";
+            
+            if(!isOpen) {
+                document.getElementById('main-body').classList.add('shop-closed');
+                document.getElementById('main-btn').disabled = true;
+                document.getElementById('main-btn').innerText = "Closed";
+            }
 
-        // Populate Initial Menus
-        populateSelect('drink-select', 'Drink');
-        populateSelect('size-select', 'Size');
-        
-        // Run initial flavor filter
-        filterFlavors();
+            populateSelect('drink-select', 'Drink');
+            populateSelect('size-select', 'Size');
+            filterFlavors();
+        } catch (e) { console.error("Init failed", e); }
     }
 
     function populateSelect(id, category) {
         const select = document.getElementById(id);
-        fullMenu.filter(row => row[0] === category).forEach(row => {
+        fullMenu.filter(row => row[0].toLowerCase() === category.toLowerCase()).forEach(row => {
             const opt = document.createElement('option');
-            opt.value = row[1];
-            opt.text = row[1];
+            opt.value = row[1]; opt.text = row[1];
             if(row[2] === 'OOS') opt.disabled = true;
             select.add(opt);
         });
     }
 
     function filterFlavors() {
-        const selectedDrink = document.getElementById('drink-select').value;
+        const selectedDrink = document.getElementById('drink-select').value.toLowerCase();
         const flavorSelect = document.getElementById('flavor-select');
-        flavorSelect.innerHTML = ''; // Clear flavors
+        flavorSelect.innerHTML = '';
 
-        // Filter Logic: Show if Link is "All" or includes the selected Drink
         const allowedFlavors = fullMenu.filter(row => {
-            if (row[0] !== 'Flavor') return false;
-            const links = row[3] ? row[3].toString().toLowerCase() : "all";
-            return links.includes("all") || links.includes(selectedDrink.toLowerCase());
+            if (row[0].toLowerCase() !== 'flavor') return false;
+            let tags = row[3] ? row[3].toString().toLowerCase().split(',').map(t => t.trim()) : ["all"];
+            
+            if (tags.includes(`-${selectedDrink}`)) return false;
+            return tags.includes("all") || tags.includes(selectedDrink) || row[1].toLowerCase() === "none";
         });
 
         allowedFlavors.forEach(row => {
@@ -122,7 +112,6 @@
     async function sendOrder() {
         const btn = document.getElementById('main-btn');
         btn.innerText = "Sending..."; btn.disabled = true;
-
         const payload = {
             name: document.getElementById('name').value || "BouBou",
             drink: document.getElementById('drink-select').value,
@@ -130,9 +119,7 @@
             size: document.getElementById('size-select').value,
             notes: document.getElementById('notes').value
         };
-
         await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-
         document.getElementById('order-form').style.display = 'none';
         document.getElementById('tracking').style.display = 'block';
         ['s1','s2','s3','s4'].forEach((id, i) => setTimeout(() => document.getElementById(id).classList.add('active'), i * 3500));
