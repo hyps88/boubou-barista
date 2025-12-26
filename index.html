@@ -6,19 +6,80 @@
     <title>BouBou Barista</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #5d4037; --bg: #fdfaf7; --text: #2d2d2d; --border: #ece0d1; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; min-height: 100vh; align-items: center; }
-        .card { max-width: 400px; width: 100%; background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+        :root { 
+            --accent: #5d4037; 
+            --bg: #fdfaf7; 
+            --text: #2d2d2d; 
+            --border: #ece0d1; 
+            --closed-bg: #ececec;
+            --closed-accent: #7a7a7a;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            display: flex; 
+            justify-content: center; 
+            padding: 20px; 
+            min-height: 100vh; 
+            align-items: center; 
+            transition: background 0.8s ease;
+        }
+
+        /* Closed State Styling */
+        body.shop-closed { background: var(--closed-bg); }
+        body.shop-closed .card { border-color: #d1d1d1; box-shadow: none; }
+        body.shop-closed h1, body.shop-closed label { color: var(--closed-accent); }
+        body.shop-closed .btn { background: var(--closed-accent); cursor: not-allowed; }
+
+        .card { 
+            max-width: 400px; 
+            width: 100%; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 30px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.04); 
+            border: 1px solid var(--border); 
+            transition: all 0.5s ease;
+        }
+
         h1 { font-family: 'Playfair Display'; color: var(--accent); text-align: center; margin: 0; font-size: 2.2rem; }
         .subtitle { text-align: center; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; margin-bottom: 10px; }
         .msg { text-align: center; font-size: 0.85rem; color: #888; margin-bottom: 25px; font-style: italic; min-height: 1.2rem; }
+        
         .group { margin-bottom: 20px; }
         label { display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 8px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
-        select, input, textarea { background: white !important; width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 12px; font-size: 1rem; box-sizing: border-box; outline: none; font-family: 'Inter', sans-serif; }
-        select:focus, input:focus { border-color: var(--accent); }
-        .btn { width: 100%; padding: 18px; background: var(--accent); color: white; border: none; border-radius: 15px; font-weight: 600; font-size: 1.1rem; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
         
+        select, input, textarea { 
+            width: 100%; 
+            padding: 14px; 
+            border: 1px solid var(--border); 
+            border-radius: 12px; 
+            font-size: 1rem; 
+            box-sizing: border-box; 
+            outline: none; 
+            font-family: 'Inter', sans-serif; 
+            background: #fff;
+        }
+
+        /* Ghost Menu Items */
+        option:disabled { color: #ccc; font-style: italic; }
+
+        .btn { 
+            width: 100%; 
+            padding: 18px; 
+            background: var(--accent); 
+            color: white; 
+            border: none; 
+            border-radius: 15px; 
+            font-weight: 600; 
+            font-size: 1.1rem; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            margin-top: 10px; 
+        }
+
         /* Tracking View */
         #tracking { display: none; text-align: center; padding: 20px 0; }
         .step { margin: 20px 0; opacity: 0.15; transition: 0.8s; font-weight: 600; font-size: 1.1rem; }
@@ -32,15 +93,34 @@
     <div id="order-form">
         <header>
             <h1>BouBou Barista</h1>
-            <div class="subtitle">Bedside Delivery Service</div>
+            <div id="status-text" class="subtitle">Bedside Delivery Service</div>
             <div id="daily-msg" class="msg">Connecting to kitchen...</div>
         </header>
 
-        <div class="group"><label>Name</label><input type="text" id="name" placeholder="Who is being served?"></div>
-        <div class="group"><label>Drink</label><select id="drink-select"><option value="">Select Drink</option></select></div>
-        <div class="group"><label>Flavor</label><select id="flavor-select"><option value="None">None</option></select></div>
-        <div class="group"><label>Size</label><select id="size-select"><option value="">Select Size</option></select></div>
-        <div class="group"><label>Notes</label><textarea id="notes" rows="2" placeholder="e.g. Extra hot, kiss on the side"></textarea></div>
+        <div class="group">
+            <label>Name</label>
+            <input type="text" id="name" placeholder="Who is being served?">
+        </div>
+
+        <div class="group">
+            <label>Drink</label>
+            <select id="drink-select"></select>
+        </div>
+
+        <div class="group">
+            <label>Flavor</label>
+            <select id="flavor-select"></select>
+        </div>
+
+        <div class="group">
+            <label>Size</label>
+            <select id="size-select"></select>
+        </div>
+
+        <div class="group">
+            <label>Notes</label>
+            <textarea id="notes" rows="2" placeholder="e.g. Extra foam, kiss on the side"></textarea>
+        </div>
 
         <button id="main-btn" class="btn" onclick="sendOrder()">Place Order</button>
     </div>
@@ -65,50 +145,62 @@
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyvcyZyGbCjKm3bZwJp8mUnKpY3axqNDM5up3v2C6EkRPkNuOj_pZfPuV1gGrpYEc8T/exec";
 
-    // 1. Fetch data from Google Sheet on load
     async function loadData() {
         try {
             const res = await fetch(SCRIPT_URL);
             const data = await res.json();
             
-            // Update Message & Status
-            document.getElementById('daily-msg').innerText = data.message || "Handcrafted with love.";
-            if(data.status && data.status.toLowerCase() === 'closed') {
+            // 1. Handle Open/Closed Logic
+            const isOpen = data.status.toLowerCase() === 'open';
+            document.getElementById('daily-msg').innerText = data.message;
+            
+            if (!isOpen) {
+                document.body.classList.add('shop-closed');
+                document.getElementById('status-text').innerText = "Shop is Currently Closed";
                 const btn = document.getElementById('main-btn');
                 btn.disabled = true;
-                btn.innerText = "Shop is Currently Closed";
+                btn.innerText = "Closed";
+            } else {
+                document.getElementById('status-text').innerText = "Open for Bedside Delivery";
             }
 
-            // Populate Menu Dropdowns
+            // 2. Handle Ghost Menu (OOS Items)
+            // Clear existing options first
+            ['drink', 'flavor', 'size'].forEach(cat => document.getElementById(`${cat}-select`).innerHTML = '');
+
             data.menu.forEach(row => {
-                const category = row[0].toLowerCase(); // "Drink", "Flavor", or "Size"
+                const category = row[0].toLowerCase();
                 const item = row[1];
                 const status = row[2];
                 
                 const select = document.getElementById(`${category}-select`);
-                if(select && status !== 'OOS') {
+                if (select) {
                     const opt = document.createElement('option');
                     opt.value = item;
-                    opt.text = status === 'Low Stock' ? `${item} (Low Stock!)` : item;
+                    
+                    if (status === 'OOS') {
+                        opt.text = `${item} (OOS)`;
+                        opt.disabled = true;
+                    } else if (status === 'Low Stock') {
+                        opt.text = `${item} (Limited!)`;
+                    } else {
+                        opt.text = item;
+                    }
                     select.add(opt);
                 }
             });
         } catch (e) {
-            document.getElementById('daily-msg').innerText = "Ready to serve.";
-            console.log("Note: Menu loading skipped until Sheet tabs are filled.");
+            document.getElementById('daily-msg').innerText = "Unable to connect to kitchen.";
         }
     }
 
-    // 2. Send Order to Google Sheet
     async function sendOrder() {
         const btn = document.getElementById('main-btn');
-        const nameVal = document.getElementById('name').value || "BouBou";
-        
         btn.innerText = "Sending...";
         btn.disabled = true;
 
         const payload = {
-            name: nameVal,
+            name: document.getElementById('name').value || "BouBou",
             drink: document.getElementById('drink-select').value,
             flavor: document.getElementById('flavor-select').value,
             size: document.getElementById('size-select').value,
@@ -116,35 +208,23 @@
         };
 
         try {
-            // Using no-cors mode for direct script delivery
             await fetch(SCRIPT_URL, { 
                 method: 'POST', 
                 mode: 'no-cors', 
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload) 
             });
 
-            // Transition instantly to Tracking
             document.getElementById('order-form').style.display = 'none';
             document.getElementById('tracking').style.display = 'block';
             
-            // Start Tracking Animation
-            animateSteps();
-
+            const steps = ['s1', 's2', 's3', 's4'];
+            steps.forEach((id, i) => {
+                setTimeout(() => document.getElementById(id).classList.add('active'), i * 4000);
+            });
         } catch (error) {
             btn.innerText = "Place Order";
             btn.disabled = false;
-            alert("Error sending order. Please check your connection.");
         }
-    }
-
-    function animateSteps() {
-        const steps = ['s1', 's2', 's3', 's4'];
-        steps.forEach((id, i) => {
-            setTimeout(() => {
-                document.getElementById(id).classList.add('active');
-            }, i * 4000); // Progress every 4 seconds
-        });
     }
 
     loadData();
