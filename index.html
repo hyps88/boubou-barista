@@ -4,107 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BouBou Barista</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #fdfaf7; --accent: #5d4037; --text: #2d2d2d; --card: #ffffff; --border: #ece0d1; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; align-items: center; }
-        .order-card { max-width: 420px; width: 100%; background: var(--card); padding: 40px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.03); border: 1px solid var(--border); }
-        header { text-align: center; margin-bottom: 25px; }
-        h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; margin: 0; color: var(--accent); }
-        .subtitle { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.6; margin-top: 5px; }
-        .form-group { margin-bottom: 18px; }
-        label { display: block; font-weight: 600; font-size: 0.8rem; margin-bottom: 8px; color: var(--accent); text-transform: uppercase; }
-        select, input, textarea { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 12px; font-size: 1rem; box-sizing: border-box; outline: none; background: #fff; font-family: 'Inter', sans-serif; }
-        .order-btn { width: 100%; padding: 18px; background: var(--accent); color: white; border: none; border-radius: 15px; font-weight: 600; font-size: 1.1rem; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        .order-btn:hover { background: #4b342c; }
+        :root { --accent: #5d4037; --bg: #fdfaf7; --text: #2d2d2d; --border: #ece0d1; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; min-height: 100vh; align-items: center; }
+        .card { max-width: 400px; width: 100%; background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+        h1 { font-family: 'Playfair Display'; color: var(--accent); text-align: center; margin: 0; font-size: 2.2rem; }
+        .subtitle { text-align: center; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; margin-bottom: 10px; }
+        .msg { text-align: center; font-size: 0.85rem; color: #888; margin-bottom: 25px; font-style: italic; min-height: 1.2rem; }
+        .group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 8px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+        select, input, textarea { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 12px; font-size: 1rem; box-sizing: border-box; outline: none; font-family: 'Inter', sans-serif; }
+        select:focus, input:focus { border-color: var(--accent); }
+        .btn { width: 100%; padding: 18px; background: var(--accent); color: white; border: none; border-radius: 15px; font-weight: 600; font-size: 1.1rem; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
         
         /* Tracking View */
-        #tracking-view { display: none; text-align: center; animation: fadeIn 0.5s ease; }
-        .step { margin: 20px 0; opacity: 0.2; transition: 0.8s; font-weight: 600; font-size: 1.1rem; }
+        #tracking { display: none; text-align: center; padding: 20px 0; }
+        .step { margin: 20px 0; opacity: 0.15; transition: 0.8s; font-weight: 600; font-size: 1.1rem; }
         .step.active { opacity: 1; color: var(--accent); transform: scale(1.05); }
-        .payment-note { margin-top: 30px; padding: 15px; background: #f9f2ed; border-radius: 12px; font-size: 0.85rem; border: 1px dashed var(--border); color: var(--accent); line-height: 1.4; }
-        
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .payment-note { margin-top: 30px; padding: 15px; background: #fdf6f2; border-radius: 12px; font-size: 0.85rem; border: 1px dashed var(--border); color: var(--accent); line-height: 1.4; }
     </style>
 </head>
 <body>
 
-<div class="order-card">
-    <div id="form-view">
+<div class="card">
+    <div id="order-form">
         <header>
             <h1>BouBou Barista</h1>
-            <div class="subtitle">Handcrafted Bedside Delivery</div>
+            <div class="subtitle">Bedside Delivery Service</div>
+            <div id="daily-msg" class="msg">Connecting to kitchen...</div>
         </header>
 
-        <div class="form-group">
-            <label>Name</label>
-            <input type="text" id="cust-name" placeholder="Who are we serving?">
-        </div>
+        <div class="group"><label>Name</label><input type="text" id="name" placeholder="Who is being served?"></div>
+        <div class="group"><label>Drink</label><select id="drink-select"><option value="">Select Drink</option></select></div>
+        <div class="group"><label>Flavor</label><select id="flavor-select"><option value="None">None</option></select></div>
+        <div class="group"><label>Size</label><select id="size-select"><option value="">Select Size</option></select></div>
+        <div class="group"><label>Notes</label><textarea id="notes" rows="2" placeholder="e.g. Extra hot, kiss on the side"></textarea></div>
 
-        <div class="form-group">
-            <label>Drink</label>
-            <select id="drink">
-                <option>Espresso</option>
-                <option>Lungo</option>
-                <option>Americano</option>
-                <option>Iced Coffee Latte</option>
-                <option>Cappucino</option>
-                <option>Iced Matcha Latte</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Flavor</label>
-            <select id="flavor">
-                <option>None</option>
-                <option>Rose</option>
-                <option>Lavender</option>
-                <option>Caramel</option>
-                <option>Hibiscus</option>
-                <option disabled style="color: #ccc;">Vanilla (OOS)</option>
-                <option>Strawberry</option>
-                <option>Cinnamon Bun</option>
-                <option>Toasted Marshmallow</option>
-                <option>Hazelnut</option>
-                <option>Mango</option>
-                <option>Raspberry</option>
-                <option>Elderflower</option>
-                <option>Coconut</option>
-                <option>Pistachio</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Size</label>
-            <select id="size">
-                <option>Small</option>
-                <option>Medium</option>
-                <option>Large</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Notes</label>
-            <textarea id="notes" rows="2" placeholder="e.g. extra hot, kiss on the side"></textarea>
-        </div>
-
-        <button id="submit-btn" class="order-btn" onclick="submitOrder()">Place Order</button>
+        <button id="main-btn" class="btn" onclick="sendOrder()">Place Order</button>
     </div>
 
-    <div id="tracking-view">
+    <div id="tracking">
         <span style="font-size: 4rem;">☕</span>
         <h2 style="font-family: 'Playfair Display'; color: var(--accent); margin-top: 5px;">Coming right up!</h2>
-        
-        <div class="progress-bar">
-            <div id="step1" class="step">Grinding fresh beans...</div>
-            <div id="step2" class="step">Brewing the magic...</div>
-            <div id="step3" class="step">Frothing with love...</div>
-            <div id="step4" class="step">Heading to your bedside!</div>
-        </div>
+        <div id="s1" class="step">Grinding fresh beans...</div>
+        <div id="s2" class="step">Brewing the magic...</div>
+        <div id="s3" class="step">Frothing with love...</div>
+        <div id="s4" class="step">Heading to your bedside!</div>
         
         <div class="payment-note">
             <strong>Payment Method:</strong><br>
-            Tips appreciated. We gladly accept kisses and cuddles upon delivery.
+            Tips appreciated! We gladly accept kisses and cuddles upon delivery.
         </div>
         
         <button onclick="location.reload()" style="background:none; border:none; text-decoration:underline; cursor:pointer; margin-top:30px; color:var(--accent); font-size: 0.8rem;">NEW ORDER</button>
@@ -112,56 +63,91 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcsdKr7ax4TP_CwmQPqrVEuPyaPNaIFPPz51SzkGb4-8FJ7l3vWNuCqVcUA7gNaT4Z/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyvcyZyGbCjKm3bZwJp8mUnKpY3axqNDM5up3v2C6EkRPkNuOj_pZfPuV1gGrpYEc8T/exec";
 
-    async function submitOrder() {
-        const btn = document.getElementById('submit-btn');
-        const nameInput = document.getElementById('cust-name').value || "BouBou";
+    // 1. Fetch data from Google Sheet on load
+    async function loadData() {
+        try {
+            const res = await fetch(SCRIPT_URL);
+            const data = await res.json();
+            
+            // Update Message & Status
+            document.getElementById('daily-msg').innerText = data.message || "Handcrafted with love.";
+            if(data.status && data.status.toLowerCase() === 'closed') {
+                const btn = document.getElementById('main-btn');
+                btn.disabled = true;
+                btn.innerText = "Shop is Currently Closed";
+            }
+
+            // Populate Menu Dropdowns
+            data.menu.forEach(row => {
+                const category = row[0].toLowerCase(); // "Drink", "Flavor", or "Size"
+                const item = row[1];
+                const status = row[2];
+                
+                const select = document.getElementById(`${category}-select`);
+                if(select && status !== 'OOS') {
+                    const opt = document.createElement('option');
+                    opt.value = item;
+                    opt.text = status === 'Low Stock' ? `${item} (Low Stock!)` : item;
+                    select.add(opt);
+                }
+            });
+        } catch (e) {
+            document.getElementById('daily-msg').innerText = "Ready to serve.";
+            console.log("Note: Menu loading skipped until Sheet tabs are filled.");
+        }
+    }
+
+    // 2. Send Order to Google Sheet
+    async function sendOrder() {
+        const btn = document.getElementById('main-btn');
+        const nameVal = document.getElementById('name').value || "BouBou";
         
-        btn.innerText = "Sending to Kitchen...";
+        btn.innerText = "Sending...";
         btn.disabled = true;
 
-        const order = {
-            name: nameInput,
-            drink: document.getElementById('drink').value,
-            flavor: document.getElementById('flavor').value,
-            size: document.getElementById('size').value,
+        const payload = {
+            name: nameVal,
+            drink: document.getElementById('drink-select').value,
+            flavor: document.getElementById('flavor-select').value,
+            size: document.getElementById('size-select').value,
             notes: document.getElementById('notes').value
         };
 
         try {
-            // Using no-cors mode to ensure the request completes even if Google doesn't return a standard header
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
+            // Using no-cors mode for direct script delivery
+            await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                mode: 'no-cors', 
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(order)
+                body: JSON.stringify(payload) 
             });
 
-            // Transition instantly to the tracking screen
-            document.getElementById('form-view').style.display = 'none';
-            document.getElementById('tracking-view').style.display = 'block';
+            // Transition instantly to Tracking
+            document.getElementById('order-form').style.display = 'none';
+            document.getElementById('tracking').style.display = 'block';
             
-            // Start the "tracking" animation sequence
-            runTracking();
+            // Start Tracking Animation
+            animateSteps();
 
         } catch (error) {
-            console.error("Error:", error);
-            btn.innerText = "Error - Try Again";
+            btn.innerText = "Place Order";
             btn.disabled = false;
+            alert("Error sending order. Please check your connection.");
         }
     }
 
-    function runTracking() {
-        const timings = [500, 4000, 8000, 12000];
-        timings.forEach((time, index) => {
+    function animateSteps() {
+        const steps = ['s1', 's2', 's3', 's4'];
+        steps.forEach((id, i) => {
             setTimeout(() => {
-                const el = document.getElementById(`step${index + 1}`);
-                if (el) el.classList.add('active');
-            }, time);
+                document.getElementById(id).classList.add('active');
+            }, i * 4000); // Progress every 4 seconds
         });
     }
-</script>
 
+    loadData();
+</script>
 </body>
 </html>
